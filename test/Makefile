@@ -2,7 +2,7 @@ include config.mk
 
 # path macros
 BIN_PATH := bin
-SRC_PATH := operations
+SRC_PATH := src
 OBJ_PATH := obj
 INCLUDE_PATH := include
 REPORT_PATH := report
@@ -40,7 +40,10 @@ $(TARGET): $(OBJ)
 	$(LINKFLAGS) $(INCFLAGS) $(LDFLAGS) $(LDLIBS)
 
 arinc615amanager:
-	cd .. && make test && make install
+	cd .. && make test -j$(shell echo $$((`nproc`))) && make install
+
+arinc615amanagerdebug:
+	cd .. && make debug -j$(shell echo $$((`nproc`))) && make install
 
 gtest:
 	cd $(GTEST_ROOT) && cmake . && make -j$(shell echo $$((`nproc`)))
@@ -60,7 +63,7 @@ all: makedir $(DEPS) $(TARGET)
 target: arinc615amanager $(TARGET)
 
 .PHONY: debug
-debug: $(TARGET)
+debug: arinc615amanagerdebug $(TARGET)
 
 .PHONY: runtests
 runtests:
