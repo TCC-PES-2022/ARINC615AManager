@@ -10,11 +10,15 @@
 #define FIND_STUB_CONTENT   "{\n"                                                   \
                             "  \"devices\": [\n"                                    \
                             "    {\n"                                               \
-                            "      \"targetHardwareIdentifier\": \"HNPFMS\",\n"     \
-                            "      \"targetTypeName\": \"FMS\",\n"                  \
-                            "      \"targetPosition\": \"L\",\n"                    \
-                            "      \"literalName\": \"FMS LEFT\"\n"                 \
-                            "      \"manufacturerCode\": \"HNP\"\n"                 \
+                            "      \"mac\": \"9A-DA-C1-D7-51-D7\",\n"               \
+                            "      \"ip\": \"127.0.0.1\",\n"                        \
+                            "      \"hardware\": {\n"                               \
+                            "           \"targetHardwareIdentifier\": \"HNPFMS\",\n"\
+                            "           \"targetTypeName\": \"FMS\",\n"             \
+                            "           \"targetPosition\": \"L\",\n"               \
+                            "           \"literalName\": \"FMS LEFT\",\n"           \
+                            "           \"manufacturerCode\": \"HNP\"\n"            \
+                            "       }\n"                                            \
                             "    }\n"                                               \
                             "  ]\n"                                                 \
                             "}"
@@ -46,7 +50,7 @@ FindOperationResult findStartedStopped_finishedCallback(std::shared_ptr<void> co
     return FindOperationResult::FIND_OPERATION_OK;
 }
 
-TEST(ARINC615AFind, FindStartedStopped)
+TEST(ARINC615AFindTest, FindStartedStopped)
 {
     FindARINC615A findObj;
 //    FindARINC615AContext context;
@@ -90,7 +94,7 @@ void createFindStub() {
     }
 }
 
-TEST(ARINC615AFind, NewDeviceInfo)
+TEST(ARINC615AFindTest, NewDeviceInfo)
 {
     createFindStub();
     FindARINC615A findObj;
