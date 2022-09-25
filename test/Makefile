@@ -35,7 +35,7 @@ CLEAN_LIST := $(TARGET) 		 \
 default: all
 
 # non-phony targets
-$(TARGET): $(OBJ)
+$(TARGET): $(DEPS) $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) \
 	$(LINKFLAGS) $(INCFLAGS) $(LDFLAGS) $(LDLIBS)
 
@@ -57,7 +57,7 @@ makedir:
 	@mkdir -p $(BIN_PATH) $(OBJ_PATH)
 
 .PHONY: all
-all: makedir $(DEPS) $(TARGET)
+all: makedir $(TARGET)
 
 .PHONY: target
 target: arinc615amanager $(TARGET)
