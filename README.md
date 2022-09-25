@@ -6,6 +6,6 @@ This file is part of the [PROJECT WITHOUT A NAME YET] project.
 
 To clone this repository, run:
 
-git clone https://github.com/TCC-PES-2022/ARINC615AManager.git
-cd ARINC615AManager
-git submodule update --init --recursive
+    git clone https://github.com/TCC-PES-2022/ARINC615AManager.git
+    cd ARINC615AManager
+    git submodule update --init --recursive
