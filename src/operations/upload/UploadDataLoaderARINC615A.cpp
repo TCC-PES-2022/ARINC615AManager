@@ -79,7 +79,24 @@ UploadDataLoaderARINC615A::registerFileNotAvailableCallback(
     return UploadOperationResult::UPLOAD_OPERATION_OK;
 }
 
+UploadOperationResult UploadDataLoaderARINC615A::setTargetHardwareId(
+    std::string &targetHardwareId)
 {
+    this->targetHardwareId = targetHardwareId;
+    return UploadOperationResult::UPLOAD_OPERATION_OK;
+}
+
+UploadOperationResult UploadDataLoaderARINC615A::setTargetHardwarePosition(
+    std::string &targetHardwarePosition)
+{
+    this->targetHardwarePosition = targetHardwarePosition;
+    return UploadOperationResult::UPLOAD_OPERATION_OK;
+}
+
+UploadOperationResult UploadDataLoaderARINC615A::setTargetHardwareIp(
+    std::string &targetHardwareIp)
+{
+    this->targetHardwareIp = targetHardwareIp;
     return UploadOperationResult::UPLOAD_OPERATION_OK;
 }
 
@@ -209,6 +226,12 @@ UploadOperationResult UploadDataLoaderARINC615A::upload()
     endUpload = false;
     uploadInitializationAccepted = false;
     uploadCompleted = false;
+
+    if (targetHardwareId.empty() || targetHardwarePosition.empty()
+        || targetHardwareIp.empty())
+    {
+        return UploadOperationResult::UPLOAD_OPERATION_ERROR;
+    }
 
     if (loadList.size() == 0)
     {
