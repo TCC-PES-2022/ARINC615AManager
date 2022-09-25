@@ -60,10 +60,6 @@ public:
 
     UploadOperationResult abort(uint16_t abortSource) override;
 
-    UploadOperationResult registerAbortRequestCallback(
-            abortRequestCallback callback,
-            std::shared_ptr<void> context) override;
-
 private:
     std::string dataLoaderIp;
     int dataLoaderPort;

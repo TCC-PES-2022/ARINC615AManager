@@ -17,16 +17,6 @@ UploadTargetHardwareARINC615A::~UploadTargetHardwareARINC615A()
     loadList.clear();
 }
 
-UploadOperationResult
-UploadTargetHardwareARINC615A::registerAbortRequestCallback (
-        abortRequestCallback callback,
-        std::shared_ptr<void> context)
-{
-    _abortRequestCallback = callback;
-    _abortRequestContext = context;
-    return UploadOperationResult::UPLOAD_OPERATION_OK;
-}
-
 UploadOperationResult UploadTargetHardwareARINC615A::uploadRequest(
         FILE **initializationFile)
 {

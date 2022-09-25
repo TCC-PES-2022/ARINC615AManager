@@ -35,21 +35,6 @@ enum class UploadOperationResult {
 #define ARINC_ERROR_MSG_DELIMITER           ":"
 
 /**
- * @brief Callback for abort request. This callback is called when the
- * DataLoader or the TargetHardware receives [Abort_Request].
- *
- * //TODO: document the JSON format.
- *
- * @param[in] context the user context.
- *
- * @return UPLOAD_OPERATION_OK if success.
- * @return UPLOAD_OPERATION_ERROR otherwise.
- */
-typedef UploadOperationResult (*abortRequestCallback)(
-        std::shared_ptr<void> context
-);
-
-/**
  * @brief Base class for ARINC-615A upload operations.
  */
 class UploadBaseARINC615A {
@@ -66,23 +51,7 @@ public:
      */
     virtual UploadOperationResult abort(uint16_t abortSource) = 0;
 
-    /**
-     * Register a callback for upload abort
-     *
-     * @param[in] callback the callback.
-     * @param[in] context the user context.
-     *
-     * @return UPLOAD_OPERATION_OK if success.
-     * @return UPLOAD_OPERATION_ERROR otherwise.
-     */
-    virtual UploadOperationResult registerAbortRequestCallback(
-            abortRequestCallback callback,
-            std::shared_ptr<void> context) = 0;
-
 protected:
-    abortRequestCallback _abortRequestCallback;
-    std::shared_ptr<void> _abortRequestContext;
-
     std::unique_ptr<ITFTPClient> tftpClient;
 };
 
