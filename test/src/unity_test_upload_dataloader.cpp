@@ -848,9 +848,9 @@ TEST_F(ARINC615AUploadTest, UploadDataLoaderDataLoaderAbort)
         TFTPClient tftpTargetHardwareUploadClient;
         tftpTargetHardwareUploadClient.setConnection(LOCALHOST,
                                                 TFTP_DATALOADER_SERVER_PORT);
-        tftpTargetHardwareUploadClient.registerTftpErrorCallback(
-                                            TftpErrorCbk,
-                                            &targetServerClienContext);
+        // tftpTargetHardwareUploadClient.registerTftpErrorCallback(
+        //                                     TftpErrorCbk,
+        //                                     &targetServerClienContext);
 
         // Wait for connection to be accepted and LUR file is received
         while (targetServerClienContext.uploadOperationStatusCode !=
@@ -873,6 +873,9 @@ TEST_F(ARINC615AUploadTest, UploadDataLoaderDataLoaderAbort)
         for (std::vector<LoadUploadRequestHeaderFileARINC615A>::iterator
                 it = headerFiles->begin(); it != headerFiles->end(); ++it)
         {
+            // Make fetch process slow so we can abort the process
+            sleep(5);
+
             std::string fileName;
             (*it).getHeaderFileName(fileName);
 
@@ -899,6 +902,10 @@ TEST_F(ARINC615AUploadTest, UploadDataLoaderDataLoaderAbort)
     // Start TargetHardware client to send status message (heartbeat)
     std::thread targetHardwareStatusThread = std::thread([&]
                                                          {
+
+        tftpTargetHardwareStatusClient->registerTftpErrorCallback(
+                                            TftpErrorCbk,
+                                            &targetServerClienContext);
 
         // Prepare LUS file
         std::string targetHardwareStatusFileName =
@@ -1015,9 +1022,9 @@ TEST_F(ARINC615AUploadTest, UploadDataLoaderOperatorAbort)
         TFTPClient tftpTargetHardwareUploadClient;
         tftpTargetHardwareUploadClient.setConnection(LOCALHOST,
                                                 TFTP_DATALOADER_SERVER_PORT);
-        tftpTargetHardwareUploadClient.registerTftpErrorCallback(
-                                            TftpErrorCbk,
-                                            &targetServerClienContext);
+        // tftpTargetHardwareUploadClient.registerTftpErrorCallback(
+        //                                     TftpErrorCbk,
+        //                                     &targetServerClienContext);
 
         // Wait for connection to be accepted and LUR file is received
         while (targetServerClienContext.uploadOperationStatusCode !=
@@ -1040,6 +1047,9 @@ TEST_F(ARINC615AUploadTest, UploadDataLoaderOperatorAbort)
         for (std::vector<LoadUploadRequestHeaderFileARINC615A>::iterator
                 it = headerFiles->begin(); it != headerFiles->end(); ++it)
         {
+            // Make fetch process slow so we can abort the process
+            sleep(5);
+
             std::string fileName;
             (*it).getHeaderFileName(fileName);
 
@@ -1067,6 +1077,9 @@ TEST_F(ARINC615AUploadTest, UploadDataLoaderOperatorAbort)
     std::thread targetHardwareStatusThread = std::thread([&]
                                                          {
 
+        tftpTargetHardwareStatusClient->registerTftpErrorCallback(
+                                            TftpErrorCbk,
+                                            &targetServerClienContext);
         // Prepare LUS file
         std::string targetHardwareStatusFileName =
                 baseFileName + UPLOAD_LOAD_UPLOAD_STATUS_FILE_EXTENSION;
