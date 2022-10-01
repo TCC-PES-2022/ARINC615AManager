@@ -10,10 +10,21 @@
 
 #include "TFTPClient.h"
 
+// TODO: Maybe this may be moved to the ARINC615A file classes
+#define UPLOAD_INITIALIZATION_FILE_EXTENSION std::string(".LUI")
+#define UPLOAD_LOAD_UPLOAD_REQUEST_FILE_EXTENSION std::string(".LUR")
+#define UPLOAD_LOAD_UPLOAD_STATUS_FILE_EXTENSION std::string(".LUS")
+
 #define DEFAULT_ARINC615A_TFTP_PORT             59
 #define DEFAULT_ARINC615A_TFTP_TIMEOUT          2   // seconds
 #define DEFAULT_ARINC615A_DLP_TIMEOUT           13  // seconds
 #define DEFAULT_ARINC615A_WAIT_TIME             1   // second
+#define MAX_DLP_TRIES 2
+
+#define MAX_NUM_FILES 10
+
+// LUS file is the biggest one. This is the worst case scenario for this file.
+#define MAX_FILE_BUFFER_SIZE (275 + (MAX_NUM_FILES * 773))
 
 /**
  * @brief Enum with possible return from interface functions.
@@ -27,6 +38,7 @@ enum class UploadOperationResult {
 };
 
 #define UPLOAD_ABORT_SOURCE_NONE            0
+#define UPLOAD_ABORT_SOURCE_TARGETHARDWARE  0x1003
 #define UPLOAD_ABORT_SOURCE_DATALOADER      0x1004
 #define UPLOAD_ABORT_SOURCE_OPERATOR        0x1005
 
