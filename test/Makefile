@@ -7,7 +7,8 @@ OBJ_PATH := obj
 INCLUDE_PATH := include
 REPORT_PATH := report
 
-DEPS := arinc615amanager gtest
+DEPS := arinc615amanager
+DEBUG_DEPS := arinc615amanagerdebug
 
 # compile macros
 TARGET_NAME := unity_test_arinc615a
@@ -35,7 +36,7 @@ CLEAN_LIST := $(TARGET) 		 \
 default: all
 
 # non-phony targets
-$(TARGET): $(DEPS) $(OBJ)
+$(TARGET): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) \
 	$(LINKFLAGS) $(INCFLAGS) $(LDFLAGS) $(LDLIBS)
 
@@ -45,9 +46,6 @@ arinc615amanager:
 arinc615amanagerdebug:
 	cd .. && make debug -j$(shell echo $$((`nproc`))) && make install
 
-gtest:
-	cd $(GTEST_ROOT) && cmake . && make -j$(shell echo $$((`nproc`)))
-
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
 	$(CXX) $(COBJFLAGS) -o $@ $< $(INCFLAGS)
 
@@ -56,14 +54,21 @@ $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
 makedir:
 	@mkdir -p $(BIN_PATH) $(OBJ_PATH)
 
+.PHONY: gtest
+gtest:
+	cd $(GTEST_ROOT) && cmake --build . -j $(shell echo $$((`nproc`)))
+
+.PHONY: dependencies
+dependencies: $(DEPS)
+
 .PHONY: all
 all: makedir $(TARGET)
 
-.PHONY: target
-target: arinc615amanager $(TARGET)
+.PHONY: debugdependencies
+debugdependencies: $(DEBUG_DEPS)
 
 .PHONY: debug
-debug: arinc615amanagerdebug $(TARGET)
+debug: $(TARGET)
 
 .PHONY: runtests
 runtests:

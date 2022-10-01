@@ -24,20 +24,20 @@ CLEAN_LIST := $(DISTCLEAN_LIST)
 CLEAN_DEPS := $(DEPS)
 
 # default rule
-default: all
+default: target
 
 # non-phony targets
 #$(DEPS): $@
 #	@echo "Compiling $<"
 
 TransferManager:
-	cd modules/TransferManager && make -j$(shell echo $$((`nproc`))) && make install
+	cd modules/TransferManager && make dependencies && make -j$(shell echo $$((`nproc`))) && make install
 
 cJSON:
 	cd modules/cJSON && mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) \
 	&& make -j$(shell echo $$((`nproc`))) && make install
 
-$(TARGET): $(DEPS) $(OBJ)
+$(TARGET): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LINKFLAGS) $(INCDIRS) $(LDFLAGS) $(LDLIBS)
 
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
@@ -48,6 +48,9 @@ $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
 .PHONY: makedir
 makedir:
 	@mkdir -p $(OBJDIRS) $(BIN_PATH)
+
+.PHONY: dependencies
+dependencies: $(DEPS)
 
 .PHONY: all
 all: makedir $(TARGET)
