@@ -14,8 +14,6 @@
 #include <chrono>
 #include <sstream>
 
-#define MAX_DLP_TRIES 2
-
 UploadDataLoaderARINC615A::UploadDataLoaderARINC615A(std::string targetHardwareId,
                                                      std::string targetHardwarePosition,
                                                      std::string targetHardwareIp)
@@ -30,6 +28,8 @@ UploadDataLoaderARINC615A::UploadDataLoaderARINC615A(std::string targetHardwareI
 
     tftpDataLoaderServerPort = DEFAULT_ARINC615A_TFTP_PORT;
     tftpTargetHardwareServerPort = DEFAULT_ARINC615A_TFTP_PORT;
+
+    toggleAbortSend = false;
 }
 
 UploadDataLoaderARINC615A::~UploadDataLoaderARINC615A()
@@ -134,6 +134,7 @@ UploadOperationResult UploadDataLoaderARINC615A::abort(
     uint16_t abortSource)
 {
     this->abortSource = abortSource;
+    toggleAbortSend = true;
     return UploadOperationResult::UPLOAD_OPERATION_OK;
 }
 
@@ -227,8 +228,7 @@ UploadOperationResult UploadDataLoaderARINC615A::upload()
     uploadInitializationAccepted = false;
     uploadCompleted = false;
 
-    if (targetHardwareId.empty() || targetHardwarePosition.empty()
-        || targetHardwareIp.empty())
+    if (targetHardwareId.empty() || targetHardwarePosition.empty() || targetHardwareIp.empty())
     {
         return UploadOperationResult::UPLOAD_OPERATION_ERROR;
     }
@@ -284,6 +284,7 @@ UploadOperationResult UploadDataLoaderARINC615A::upload()
     do
     {
         fseek(fpInitializationFile, 0, SEEK_SET);
+        // TODO: Check for wait msg
         resultTftpClientOperation = tftpClient->fetchFile(
             initializationFileName.c_str(), fpInitializationFile);
         numTries++;
@@ -360,6 +361,7 @@ UploadOperationResult UploadDataLoaderARINC615A::upload()
     do
     {
         fseek(fpLoadListFile, 0, SEEK_SET);
+        // TODO: Check for wait msg
         resultTftpClientOperation = tftpClient->sendFile(
             loadListFileName.c_str(), fpLoadListFile);
         numTries++;
@@ -432,33 +434,37 @@ TftpServerOperationResult UploadDataLoaderARINC615A::targetHardwareSectionFinish
     return TftpServerOperationResult::TFTP_SERVER_OK;
 }
 
-/*
- * If upload operation is aborted, all subsequent TFTP transfers will
- * receive an abort message, but we still need to wait for the abort
- * confirmation from the target hardware, so LUS files will still be accepted.
- */
-UploadOperationResult UploadDataLoaderARINC615A::sendAbortMessage(
+UploadOperationResult UploadDataLoaderARINC615A::abortTargetRequest(
     uint16_t abortSource, ITFTPSection *sectionHandler, char *filename,
     char *mode)
 {
-    std::string lusExtension =
-        std::string(UPLOAD_LOAD_UPLOAD_STATUS_FILE_EXTENSION);
-
-    if (std::strcmp(mode, "w") == 0 &&
-        std::strstr(filename, lusExtension.c_str()) != nullptr)
+    if (abortSource != UPLOAD_ABORT_SOURCE_NONE && toggleAbortSend)
     {
-        // Status file will still be accepted.
-        return UploadOperationResult::UPLOAD_OPERATION_ERROR;
-    }
 
-    if (abortSource != UPLOAD_ABORT_SOURCE_NONE)
-    {
-        std::stringstream errorMessageStream;
-        errorMessageStream << ARINC_ABORT_MSG_PREFIX;
-        errorMessageStream << ARINC_ERROR_MSG_DELIMITER;
-        errorMessageStream << std::hex << abortSource;
-        std::string errorMessage = errorMessageStream.str();
-        sectionHandler->setErrorMessage(errorMessage);
+        /*
+         * According the the ARINC 615A specification, the abort message
+         * should be sent only once on status file write request.
+         * But it's also said that the TargetHardware will send a
+         * confirmation of the abort, so we need to check that.
+         * It's not clear how to handle this, so for now the solution will
+         * be to send abort messages intermittently.
+         */
+        toggleAbortSend = !toggleAbortSend;
+
+        std::string lusExtension =
+            std::string(UPLOAD_LOAD_UPLOAD_STATUS_FILE_EXTENSION);
+
+        if (std::strcmp(mode, "w") == 0 &&
+            std::strstr(filename, lusExtension.c_str()) != nullptr)
+        {
+
+            std::stringstream errorMessageStream;
+            errorMessageStream << ARINC_ABORT_MSG_PREFIX;
+            errorMessageStream << ARINC_ERROR_MSG_DELIMITER;
+            errorMessageStream << std::hex << abortSource;
+            std::string errorMessage = errorMessageStream.str();
+            sectionHandler->setErrorMessage(errorMessage);
+        }
         return UploadOperationResult::UPLOAD_OPERATION_OK;
     }
 
@@ -474,8 +480,8 @@ TftpServerOperationResult UploadDataLoaderARINC615A::targetHardwareOpenFileReque
     {
         thiz = static_cast<UploadDataLoaderARINC615A *>(context);
 
-        if (thiz->sendAbortMessage(thiz->abortSource, sectionHandler,
-                                   filename, mode) == UploadOperationResult::UPLOAD_OPERATION_OK)
+        if (thiz->abortTargetRequest(thiz->abortSource, sectionHandler,
+                                     filename, mode) == UploadOperationResult::UPLOAD_OPERATION_OK)
         {
             (*fp) = NULL;
             return TftpServerOperationResult::TFTP_SERVER_ERROR;
@@ -548,6 +554,8 @@ UploadOperationResult UploadDataLoaderARINC615A::clientProcessor()
         /*********************** Wait for client event ***********************/
         {
             std::unique_lock<std::mutex> lock(clientProcessorMutex);
+
+            // TODO: Make Exception Timer from LUS and WAIT message override this
             clientProcessorCV.wait_for(lock,
                                        std::chrono::seconds(
                                            DEFAULT_ARINC615A_DLP_TIMEOUT));

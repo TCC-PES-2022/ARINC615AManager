@@ -14,17 +14,7 @@
 #include "TFTPServer.h"
 #include "UploadBaseARINC615A.h"
 
-#define MAX_NUM_FILES 10
-
 #define DEFAULT_WAIT_TIME 1 // second
-
-// LUS file is the biggest one. This is the worst case scenario for this file.
-#define MAX_FILE_BUFFER_SIZE (275 + (MAX_NUM_FILES * 773))
-
-// TODO: Maybe this may be moved to the ARINC615A file classes
-#define UPLOAD_INITIALIZATION_FILE_EXTENSION std::string(".LUI")
-#define UPLOAD_LOAD_UPLOAD_REQUEST_FILE_EXTENSION std::string(".LUR")
-#define UPLOAD_LOAD_UPLOAD_STATUS_FILE_EXTENSION std::string(".LUS")
 
 /**
  * @brief This data type will be used to store a single load. The stored
@@ -257,7 +247,8 @@ private:
     UploadOperationResult processFile(std::string fileName, char *buffer);
     UploadOperationResult processLoadUploadStatusFile(char *buffer);
 
-    UploadOperationResult sendAbortMessage(uint16_t abortSource,
+    bool toggleAbortSend;
+    UploadOperationResult abortTargetRequest(uint16_t abortSource,
                                            ITFTPSection *sectionHandler,
                                            char *filename, char *mode);
     uint16_t abortSource;
