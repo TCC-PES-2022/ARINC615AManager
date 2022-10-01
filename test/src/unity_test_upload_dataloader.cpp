@@ -25,10 +25,10 @@
 #define TFTP_TARGETHARDWARE_SERVER_PORT 28132
 #define TFTP_DATALOADER_SERVER_PORT 45426
 
-class ARINC615AUploadTest : public ::testing::Test
+class ARINC615AUploadDataLoaderTest : public ::testing::Test
 {
 protected:
-    ARINC615AUploadTest()
+    ARINC615AUploadDataLoaderTest()
     {
         uploadDataLoaderARINC615A =
             new UploadDataLoaderARINC615A(TARGET_HARDWARE_ID,
@@ -38,7 +38,7 @@ protected:
         tftpTargetHardwareStatusClient = new TFTPClient();
     }
 
-    ~ARINC615AUploadTest() override
+    ~ARINC615AUploadDataLoaderTest() override
     {
         delete uploadDataLoaderARINC615A;
         delete tftpTargetHardwareServer;
@@ -170,25 +170,25 @@ TftpServerOperationResult targetHardwareOpenFileCallback(
     return TftpServerOperationResult::TFTP_SERVER_ERROR;
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderRegisterUploadInitializationResponseCallback)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderRegisterUploadInitializationResponseCallback)
 {
     ASSERT_EQ(uploadDataLoaderARINC615A->registerUploadInitializationResponseCallback(nullptr, nullptr),
               UploadOperationResult::UPLOAD_OPERATION_OK);
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderRegisterUploadInformationStatusCallback)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderRegisterUploadInformationStatusCallback)
 {
     ASSERT_EQ(uploadDataLoaderARINC615A->registerUploadInformationStatusCallback(nullptr, nullptr),
               UploadOperationResult::UPLOAD_OPERATION_OK);
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderRegisterFileNotAvailableCallback)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderRegisterFileNotAvailableCallback)
 {
     ASSERT_EQ(uploadDataLoaderARINC615A->registerFileNotAvailableCallback(nullptr, nullptr),
               UploadOperationResult::UPLOAD_OPERATION_OK);
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderLoadEmptyLoadList)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderLoadEmptyLoadList)
 {
     std::vector<ArincLoad> loadList;
     loadList.clear();
@@ -200,7 +200,7 @@ TEST_F(ARINC615AUploadTest, UploadDataLoaderLoadEmptyLoadList)
               UploadOperationResult::UPLOAD_OPERATION_ERROR);
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderOverloadLoadList)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderOverloadLoadList)
 {
     std::vector<ArincLoad> loadList;
     loadList.clear();
@@ -218,7 +218,7 @@ TEST_F(ARINC615AUploadTest, UploadDataLoaderOverloadLoadList)
               UploadOperationResult::UPLOAD_OPERATION_ERROR);
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderTHUploadingInitializationTimeout)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderTHUploadingInitializationTimeout)
 {
     int upload_operation_time = 0;
     time_t start = time(NULL);
@@ -241,7 +241,7 @@ TEST_F(ARINC615AUploadTest, UploadDataLoaderTHUploadingInitializationTimeout)
     // EXPECT_GE(upload_operation_time, expected_upload_operation_time - DELTA_TIME);
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderTHUploadingInitializationRefused)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderTHUploadingInitializationRefused)
 {
     TargetServerClienContext targetServerClienContext;
 
@@ -271,7 +271,7 @@ TEST_F(ARINC615AUploadTest, UploadDataLoaderTHUploadingInitializationRefused)
     serverThread.join();
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderLoadUploadStatusTimeout)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderLoadUploadStatusTimeout)
 {
     TargetServerClienContext targetServerClienContext;
 
@@ -323,7 +323,7 @@ UploadDataLoaderLoadUploadRequestTimeout_TargetHardwareSectionFinished(
     return TftpServerOperationResult::TFTP_SERVER_OK;
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderLoadUploadRequestTimeout)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderLoadUploadRequestTimeout)
 {
     TargetServerClienContext targetServerClienContext;
 
@@ -409,7 +409,7 @@ TEST_F(ARINC615AUploadTest, UploadDataLoaderLoadUploadRequestTimeout)
     // EXPECT_GE(upload_operation_time, expected_upload_operation_time - DELTA_TIME);
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderLoadUploadStatusTimeoutAfterLUR)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderLoadUploadStatusTimeoutAfterLUR)
 {
     TargetServerClienContext targetServerClienContext;
 
@@ -527,7 +527,7 @@ bool compare_files(const std::string &filename1, const std::string &filename2)
 }
 /////////////////////////////////////////////////////////
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderUploadSuccess)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderUploadSuccess)
 {
     TargetServerClienContext targetServerClienContext;
 
@@ -673,7 +673,7 @@ UploadDataLoaderTargetHardwareAbort_TargetHardwareSectionFinished(
     return TftpServerOperationResult::TFTP_SERVER_OK;
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderTargetHardwareAbort)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderTargetHardwareAbort)
 {
     TargetServerClienContext targetServerClienContext;
 
@@ -808,7 +808,7 @@ TftpClientOperationResult TftpErrorCbk(
     return TftpClientOperationResult::TFTP_CLIENT_ERROR;
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderDataLoaderAbort)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderDataLoaderAbort)
 {
     TargetServerClienContext targetServerClienContext;
 
@@ -982,7 +982,7 @@ TEST_F(ARINC615AUploadTest, UploadDataLoaderDataLoaderAbort)
     serverThread.join();
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderOperatorAbort)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderOperatorAbort)
 {
     TargetServerClienContext targetServerClienContext;
 
@@ -1163,7 +1163,7 @@ UploadOperationResult UploadDataLoaderFileNotFound_fileNotAvailableCbk(
     return UploadOperationResult::UPLOAD_OPERATION_OK;
 }
 
-TEST_F(ARINC615AUploadTest, UploadDataLoaderFileNotFound)
+TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderFileNotFound)
 {
     TargetServerClienContext targetServerClienContext;
 
