@@ -51,6 +51,7 @@
  * The operation is aborted in the target hardware due to the receipt of an
  * abort error message initiated by an operator action.
  */
+#define STATUS_UPLOAD_ABORTED_IN_THE_TARGET_OP_REQUEST static_cast<uint16_t>(0x1005)
 
 /*
  * The load of this Header File has failed. Text is required in the "Status
