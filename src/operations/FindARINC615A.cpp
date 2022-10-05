@@ -56,10 +56,25 @@ FindOperationResult FindARINC615A::find() {
         /********* FIND STUB **********/
 
         std::ifstream findstub("findstub.json");
-        if (findstub.is_open()) {
-            std::string findstubstr((std::istreambuf_iterator<char>(findstub)),
+        if (findstub.is_open())
+        {
+            std::string fileContent((std::istreambuf_iterator<char>(findstub)),
                                     std::istreambuf_iterator<char>());
-            _findNewDeviceCallback(findstubstr, _findNewDeviceContext);
+            cJSON *findstubJson = cJSON_Parse(fileContent.c_str());
+            if (findstubJson != NULL)
+            {
+                cJSON *devices = cJSON_GetObjectItem(findstubJson, "devices");
+                if (devices != NULL)
+                {
+                    cJSON *device = devices->child;
+                    while (device != NULL)
+                    {
+                        std::string deviceInfo = cJSON_PrintUnformatted(device);
+                        _findNewDeviceCallback(deviceInfo, _findNewDeviceContext);
+                        device = device->next;
+                    }
+                }
+            }
             findstub.close();
         }
 

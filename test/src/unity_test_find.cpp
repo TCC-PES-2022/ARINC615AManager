@@ -23,7 +23,13 @@
                             "  ]\n"                                                 \
                             "}"
 
-typedef struct {
+#define DEVICE_INFO "{\"mac\":\"9A-DA-C1-D7-51-D7\",\"ip\":\"127.0.0.1\","   \
+                    "\"hardware\":{\"targetHardwareIdentifier\":\"HNPFMS\"," \
+                    "\"targetTypeName\":\"FMS\",\"targetPosition\":\"L\","   \
+                    "\"literalName\":\"FMS LEFT\",\"manufacturerCode\":\"HNP\"}}"
+
+typedef struct
+{
     bool findStartedCalled;
     std::string deviceInfo;
     bool findFinishedCalled;
@@ -116,5 +122,5 @@ TEST(ARINC615AFindTest, NewDeviceInfo)
         }
     }
 
-    ASSERT_STREQ(context->deviceInfo.c_str(), FIND_STUB_CONTENT);
+    ASSERT_STREQ(context->deviceInfo.c_str(), DEVICE_INFO);
 }
