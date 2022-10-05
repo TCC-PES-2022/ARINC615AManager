@@ -123,6 +123,28 @@ public:
     UploadOperationResult setTargetHardwareIp(std::string &targetHardwareIp);
 
     /**
+     * @brief Set DataLoader server PORT. This is the port where the DataLoader
+     *       will listen for the upload operation.
+     *
+     * @param[in] port the port number.
+     *
+     * @return UPLOAD_OPERATION_OK if success.
+     * @return UPLOAD_OPERATION_ERROR otherwise.
+     */
+    UploadOperationResult setTftpDataLoaderServerPort(uint16_t port);
+
+    /**
+     * @brief Set TargetHardware server PORT. This is the port to connect to the
+     *       TargetHardware.
+     *
+     * @param[in] port the port number.
+     *
+     * @return UPLOAD_OPERATION_OK if success.
+     * @return UPLOAD_OPERATION_ERROR otherwise.
+     */
+    UploadOperationResult setTftpTargetHardwareServerPort(uint16_t port);
+
+    /**
      * @brief Set load list.
      *
      * @param[in] loadList the load list.
@@ -179,26 +201,6 @@ public:
     UploadOperationResult registerFileNotAvailableCallback(
         fileNotAvailableCallback callback,
         std::shared_ptr<void> context);
-
-    /**
-     * @brief Set TFTP TargetHardware server port.
-     *
-     * @param[in] port TFTP server port to connect to.
-     *
-     * @return UPLOAD_OPERATION_OK if success.
-     * @return UPLOAD_OPERATION_ERROR otherwise.
-     */
-    UploadOperationResult setTftpTargetHardwareServerPort(uint16_t port);
-
-    /**
-     * @brief Set TFTP DataLoader server port
-     *
-     * @param[in] port TFTP server port to connect to.
-     *
-     * @return UPLOAD_OPERATION_OK if success.
-     * @return UPLOAD_OPERATION_ERROR otherwise.
-     */
-    UploadOperationResult setTftpDataLoaderServerPort(uint16_t port);
 
     UploadOperationResult abort(uint16_t abortSource) override;
 
