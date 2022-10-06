@@ -358,7 +358,19 @@ TEST_F(ARINC615AUploadTargetHardwareTest, UploadTargetHardwareRegisterCheckFileC
     ASSERT_EQ(uploadTargetHardwareARINC615A->registerCheckFilesCallback(
                   [](std::vector<std::string> files,
                      std::string &checkDescription,
-                     std::shared_ptr<void> context) -> UploadOperationResult
+                     void *context) -> UploadOperationResult
+                  {
+                      return UploadOperationResult::UPLOAD_OPERATION_OK;
+                  },
+                  nullptr),
+              UploadOperationResult::UPLOAD_OPERATION_OK);
+}
+
+TEST_F(ARINC615AUploadTargetHardwareTest, UploadTargetHardwareRegisterTransmissionCheckCallback)
+{
+    ASSERT_EQ(uploadTargetHardwareARINC615A->registerTransmissionCheckCallback(
+                  [](std::string &checkDescription,
+                     void *context) -> UploadOperationResult
                   {
                       return UploadOperationResult::UPLOAD_OPERATION_OK;
                   },

@@ -30,7 +30,7 @@ enum class UploadTargetHardwareARINC615AState
 };
 
 /*
- * @brief to check received files
+ * @brief Callback to check received files
  *
  * @param[in] files list of received files
  * @param[in] checkReport report description of operation
@@ -42,7 +42,22 @@ enum class UploadTargetHardwareARINC615AState
 typedef UploadOperationResult (*checkFilesCallback)(
     std::vector<std::string> files,
     std::string &checkDescription,
-    std::shared_ptr<void> context);
+    void *context);
+
+/*
+ * @brief Callback to check upload operation. This callback is called when all
+ *        files have been received, so the TargetHardware can perform one
+ *       last check before sending OK to DataLoader.
+ *
+ * @param[in] checkReport report description of operation
+ * @param[in] context user context
+ *
+ * @return UPLOAD_OPERATION_OK if success.
+ * @return UPLOAD_OPERATION_ERROR otherwise.
+ */
+typedef UploadOperationResult (*transmissionCheckCallback)(
+    std::string &checkDescription,
+    void *context);
 
 /**
  * @brief Class to handle ARINC-615A upload operation on the TargetHardware
@@ -67,7 +82,20 @@ public:
      */
     UploadOperationResult registerCheckFilesCallback(
         checkFilesCallback callback,
-        std::shared_ptr<void> context);
+        void *context);
+
+    /**
+     * @brief Register a callback for a final transmission check.
+     *
+     * @param[in] callback the callback to check if the files are valid.
+     * @param[in] context the context to be passed to the callback.
+     *
+     * @return UPLOAD_OPERATION_OK if success.
+     * @return UPLOAD_OPERATION_ERROR otherwise.
+     */
+    UploadOperationResult registerTransmissionCheckCallback(
+        transmissionCheckCallback callback,
+        void *context);
 
     /**
      * @brief Upload request from the dataloader.
@@ -122,7 +150,9 @@ private:
     std::mutex abortedMutex;
 
     checkFilesCallback _checkFilesCallback;
-    std::shared_ptr<void> _checkFilesContext;
+    void *_checkFilesContext;
+    transmissionCheckCallback _transmissionCheckCallback;
+    void *_transmissionCheckContext;
 
     std::string baseFileName;
     std::shared_ptr<std::vector<uint8_t>> loadUploadInitializationFileBuffer;
@@ -158,8 +188,9 @@ private:
 #ifdef PARALLEL_UPLOAD
     std::mutex uploadHeaderMutex;
     std::vector<LoadUploadStatusHeaderFileARINC615A>::iterator uploadHeaderIt;
-    typedef struct {
-         std::thread::id uploadHeaderThreadId;
+    typedef struct
+    {
+        std::thread::id uploadHeaderThreadId;
         UploadTargetHardwareARINC615A *thiz;
     } UploadThreadContext;
     UploadOperationResult uploadHeaderThread();

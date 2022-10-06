@@ -18,6 +18,8 @@ UploadTargetHardwareARINC615A::UploadTargetHardwareARINC615A(
 
     _checkFilesCallback = nullptr;
     _checkFilesContext = nullptr;
+    _transmissionCheckCallback = NULL;
+    _transmissionCheckContext = NULL;
 
     uploadStatusDescription.clear();
 
@@ -60,7 +62,7 @@ UploadTargetHardwareARINC615A::~UploadTargetHardwareARINC615A()
 }
 
 UploadOperationResult UploadTargetHardwareARINC615A::registerCheckFilesCallback(
-    checkFilesCallback callback, std::shared_ptr<void> context)
+    checkFilesCallback callback, void *context)
 {
     _checkFilesCallback = callback;
     _checkFilesContext = context;
@@ -68,9 +70,19 @@ UploadOperationResult UploadTargetHardwareARINC615A::registerCheckFilesCallback(
     return UploadOperationResult::UPLOAD_OPERATION_OK;
 }
 
+UploadOperationResult UploadTargetHardwareARINC615A::registerTransmissionCheckCallback(
+    transmissionCheckCallback callback, void *context)
+{
+    _transmissionCheckCallback = callback;
+    _transmissionCheckContext = context;
+    return UploadOperationResult::UPLOAD_OPERATION_OK;
+}
+
 UploadOperationResult UploadTargetHardwareARINC615A::checkUploadConditions()
 {
-    // No conditions to check right now.
+    // TODO: Make this a callback. This package should know about the
+    //      ARINC protocol only, let other modules decide about the
+    //      upload conditions.
     return UploadOperationResult::UPLOAD_OPERATION_OK;
 }
 
@@ -736,6 +748,18 @@ UploadOperationResult UploadTargetHardwareARINC615A::uploadThread()
     {
         abort(UPLOAD_ABORT_SOURCE_TARGETHARDWARE);
         return UploadOperationResult::UPLOAD_OPERATION_ERROR;
+    }
+
+    if (_transmissionCheckCallback != nullptr)
+    {
+        std::string checkFilesReport;
+        if (_transmissionCheckCallback(checkFilesReport, _checkFilesContext) ==
+            UploadOperationResult::UPLOAD_OPERATION_ERROR)
+        {
+            uploadStatusDescription = checkFilesReport;
+            abort(UPLOAD_ABORT_SOURCE_TARGETHARDWARE);
+            return UploadOperationResult::UPLOAD_OPERATION_ERROR;
+        }
     }
 
     nextState = UploadTargetHardwareARINC615AState::COMPLETED;
