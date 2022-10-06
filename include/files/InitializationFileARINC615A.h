@@ -10,6 +10,11 @@
 #define MAX_STATUS_DESCRIPTION_SIZE             static_cast<size_t>(255) // bytes
 
 /*
+ * TODO: Remove UPLOAD from variable names because these codes are used 
+ * for every initialization operation
+ */
+
+/*
  * The operation is accepted.
  */
 #define INITIALIZATION_UPLOAD_IS_ACCEPTED            static_cast<uint16_t>(0x0001)
