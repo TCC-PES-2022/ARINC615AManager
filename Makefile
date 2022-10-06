@@ -1,13 +1,13 @@
 include config.mk
 
 # path macros
-BIN_PATH := bin
+OUT_PATH := lib
 OBJ_PATH := obj
 SRC_PATH := src
 INCLUDE_PATH := include
 
-TARGET_NAME := libarinc615a.so
-TARGET := $(BIN_PATH)/$(TARGET_NAME)
+TARGET_NAME := libarinc615a.a
+TARGET := $(OUT_PATH)/$(TARGET_NAME)
 
 INCDIRS := $(addprefix -I,$(shell find $(INCLUDE_PATH) -type d -print))
 INCDIRS += $(addprefix -I,$(DEP_PATH)/include)
@@ -18,45 +18,52 @@ OBJ := $(subst $(SRC_PATH),$(OBJ_PATH),$(SRC:%.cpp=%.o))
 OBJDIRS:=$(dir $(OBJ))
 
 # clean files list
-DISTCLEAN_LIST := $(OBJ)
-CLEAN_LIST := $(DISTCLEAN_LIST)
-
-CLEAN_DEPS := $(DEPS)
+CLEAN_LIST := $(OBJ) 			\
+			  $(OBJ_PATH) 		\
+	 		  $(DISTCLEAN_LIST)
 
 # default rule
-default: target
+default: all
 
-# non-phony targets
-#$(DEPS): $@
-#	@echo "Compiling $<"
-
-TransferManager:
-	cd modules/TransferManager && make dependencies && make -j$(shell echo $$((`nproc`))) && make install
+$(DEPS): $@
+	@echo "\n\n *** Building $@ *** \n\n"
+	cd modules/$@ && $(MAKE) deps && \
+	$(MAKE) $(DEP_RULE) -j$(shell echo $$((`nproc`))) && \
+	$(MAKE) install DESTDIR=$(DEP_PATH)
 
 cJSON:
-	cd modules/cJSON && mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) \
-	&& make -j$(shell echo $$((`nproc`))) && make install
+	@echo "\n\n *** Building $@ *** \n\n"
+	cd modules/$@ && mkdir -p build && cd build && \
+	cmake .. -DBUILD_SHARED_AND_STATIC_LIBS=On -DCMAKE_INSTALL_PREFIX= && \
+	make -j$(shell echo $$((`nproc`))) && make install DESTDIR=$(DEP_PATH)
 
+LIB_DEPS_COMPLETE := $(addprefix $(DEP_PATH)/lib/,$(LIB_DEPS))
 $(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LINKFLAGS) $(INCDIRS) $(LDFLAGS) $(LDLIBS)
+	@echo "Linking $@"
+	$(AR) $(ARFLAGS) libtmp.a $(OBJ)
+	echo "create $@" > lib.mri
+	echo "addlib libtmp.a" >> lib.mri
+	echo "$(addprefix \naddlib ,$(LIB_DEPS_COMPLETE))" >> lib.mri
+	echo "save" >> lib.mri
+	echo "end" >> lib.mri
+	$(AR) -M < lib.mri
+	rm libtmp.a
+	rm lib.mri
 
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
-	@echo "Compiling $<"
+	@echo "Building $<"
 	$(CXX) $(COBJFLAGS) -o $@ $< $(INCDIRS)
 
 # phony rules
 .PHONY: makedir
 makedir:
-	@mkdir -p $(OBJDIRS) $(BIN_PATH)
+	@mkdir -p $(OBJDIRS) $(OUT_PATH)
 
-.PHONY: dependencies
-dependencies: $(DEPS)
+.PHONY: deps
+deps: $(DEPS)
 
 .PHONY: all
 all: makedir $(TARGET)
-
-.PHONY: target
-target: makedir $(TARGET)
 
 .PHONY: test
 test: makedir $(TARGET)
@@ -66,22 +73,14 @@ debug: makedir $(TARGET)
 
 .PHONY: install
 install:
-	mkdir -p $(INSTALL_PATH)/lib $(INSTALL_PATH)/include
-	cp -f $(BIN_PATH)/*.so $(INSTALL_PATH)/lib
-	cp -f $(shell find $(INCLUDE_PATH) -type f -name "*.h") $(INSTALL_PATH)/include
+	@echo "\n\n *** Installing ARINC615AManager to $(DESTDIR) *** \n\n"
+	mkdir -p $(DESTDIR)/lib $(DESTDIR)/include
+	cp -f $(TARGET) $(DESTDIR)/lib
+	cp -f $(shell find $(INCLUDE_PATH) -type f -name "*.h") $(DESTDIR)/include
 
-# TODO: remove only what we installed
-.PHONY: uninstall
-uninstall:
-	rm -rf $(INSTALL_PATH)/lib $(INSTALL_PATH)/include
+# TODO: create uninstall rule
 
 .PHONY: clean
 clean:
 	@echo CLEAN $(CLEAN_LIST)
-	@rm -f $(CLEAN_LIST)
-
-.PHONY: distclean
-distclean:
-	@echo CLEAN $(DISTCLEAN_LIST)
-	@rm -f $(DISTCLEAN_LIST)
-	@rm -rf $(OBJ_PATH)
+	@rm -rf $(CLEAN_LIST)

@@ -2,22 +2,20 @@
 VERSION = 0.1
 
 # paths
-DEST 	:= /opt/fls
-DEPS 	:= TransferManager cJSON
+DESTDIR 	?= /tmp
+DEP_PATH 	?= $(DESTDIR)
 
-INSTALL_PATH 	:= $(DEST)
-DEP_PATH 		:= $(DEST)
+DEPS 		:= TransferManager cJSON
+LIB_DEPS	:= libtransfer.a libcjson.a
 
+AR 			?= ar
+ARFLAGS		:= rcs
 CXX 		?=
 CXXFLAGS 	:= -Wall -Werror -std=c++11 -pthread
 DBGFLAGS 	:= -g -ggdb
 TESTFLAGS 	:= -fprofile-arcs -ftest-coverage --coverage
-LINKFLAGS 	:= -shared
-#LDFLAGS  	:= -L$(DEP_PATH)/lib
-#LDLIBS   	:= -ltransfer -ltftp -ltftpd -lpthread -lcjson
 
-COBJFLAGS 	:= $(CXXFLAGS) -c -fPIC
+COBJFLAGS 	:= $(CXXFLAGS) -c
 test: COBJFLAGS 	+= $(TESTFLAGS)
+test: LINKFLAGS 	+= -fprofile-arcs -lgcov
 debug: COBJFLAGS 	+= $(DBGFLAGS)
-
-test: LINKFLAGS 	+= -fprofile-arcs -ftest-coverage -lgcov
