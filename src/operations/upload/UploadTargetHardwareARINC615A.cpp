@@ -145,10 +145,16 @@ UploadOperationResult UploadTargetHardwareARINC615A::loadUploadRequest(
                      loadUploadInitializationFileBuffer->size(), "w");
     if ((*fp) == NULL)
     {
-        (*bufferSize) = 0;
+        if (bufferSize != NULL)
+        {
+            (*bufferSize) = 0;
+        }
         return UploadOperationResult::UPLOAD_OPERATION_ERROR;
     }
-    (*bufferSize) = loadUploadInitializationFileBuffer->size();
+    if (bufferSize != NULL)
+    {
+        (*bufferSize) = loadUploadInitializationFileBuffer->size();
+    }
 
     return UploadOperationResult::UPLOAD_OPERATION_OK;
 }
