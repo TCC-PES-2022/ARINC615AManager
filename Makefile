@@ -19,8 +19,7 @@ OBJDIRS:=$(dir $(OBJ))
 
 # clean files list
 CLEAN_LIST := $(OBJ) 			\
-			  $(OBJ_PATH) 		\
-	 		  $(DISTCLEAN_LIST)
+			  $(OBJ_PATH) 		
 
 # default rule
 default: all
@@ -34,21 +33,24 @@ $(DEPS): $@
 cJSON:
 	@echo "\n\n *** Building $@ *** \n\n"
 	cd modules/$@ && mkdir -p build && cd build && \
-	cmake .. -DBUILD_SHARED_AND_STATIC_LIBS=On -DCMAKE_INSTALL_PREFIX= && \
+	cmake .. -DBUILD_SHARED_LIBS=Off -DCMAKE_INSTALL_PREFIX= && \
 	make -j$(shell echo $$((`nproc`))) && make install DESTDIR=$(DEP_PATH)
+	strip --strip-unneeded $(DEP_PATH)/lib/libcjson.a
 
-LIB_DEPS_COMPLETE := $(addprefix $(DEP_PATH)/lib/,$(LIB_DEPS))
+# LIB_DEPS_COMPLETE := $(addprefix $(DEP_PATH)/lib/,$(LIB_DEPS))
 $(TARGET): $(OBJ)
 	@echo "Linking $@"
-	$(AR) $(ARFLAGS) libtmp.a $(OBJ)
-	echo "create $@" > lib.mri
-	echo "addlib libtmp.a" >> lib.mri
-	echo "$(addprefix \naddlib ,$(LIB_DEPS_COMPLETE))" >> lib.mri
-	echo "save" >> lib.mri
-	echo "end" >> lib.mri
-	$(AR) -M < lib.mri
-	rm libtmp.a
-	rm lib.mri
+	$(AR) $(ARFLAGS) $(TARGET) $(OBJ)
+	# $(AR) $(ARFLAGS) libtmp.a $(OBJ)
+	# echo "create $@" > lib.mri
+	# echo "addlib libtmp.a" >> lib.mri
+	# echo "$(addprefix \naddlib ,$(LIB_DEPS_COMPLETE))" >> lib.mri
+	# echo "save" >> lib.mri
+	# echo "end" >> lib.mri
+	# $(AR) -M < lib.mri
+	# rm libtmp.a
+	# rm lib.mri
+	# ranlib $@
 
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
 	@echo "Building $<"
@@ -64,6 +66,8 @@ deps: $(DEPS)
 
 .PHONY: all
 all: makedir $(TARGET)
+	strip --strip-unneeded $(TARGET)
+	ranlib $(TARGET)
 
 .PHONY: test
 test: makedir $(TARGET)
