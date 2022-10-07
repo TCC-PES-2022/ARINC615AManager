@@ -10,11 +10,20 @@ To clone this repository, run:
     cd ARINC615AManager
     git submodule update --init --recursive
 
+Before building your project, you may need to install some dependencies. To do so, run:
+
+    sudo apt install -y build-essential
+
+Export the instalation path to the environment:
+    export DESTDIR=<path_to_install>
+
+You can also define this variable in your `.bashrc` file. or when calling any make rule. The default installation path is `/tmp`.
+
 To build, run:
     make deps && make
 
-To install, run (default instalation path is /tmp):
-    make install [DESTDIR=<path_to_intall_dir>]
+To install, run:
+    make install
 
 To test, first build gtest:
     cd test && make gtest
