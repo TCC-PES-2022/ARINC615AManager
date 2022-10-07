@@ -1,0 +1,15 @@
+{
+  "devices": [
+    {
+      "mac": "9A-DA-C1-D7-51-D7",
+      "ip": "127.0.0.1",
+      "hardware": {
+           "targetHardwareIdentifier": "HNPFMS",
+           "targetTypeName": "FMS",
+           "targetPosition": "L",
+           "literalName": "FMS LEFT",
+           "manufacturerCode": "HNP"
+       }
+    }
+  ]
+}
