@@ -29,6 +29,13 @@ UploadDataLoaderARINC615A::UploadDataLoaderARINC615A(std::string targetHardwareI
     tftpDataLoaderServerPort = DEFAULT_ARINC615A_TFTP_PORT;
     tftpTargetHardwareServerPort = DEFAULT_ARINC615A_TFTP_PORT;
 
+    _uploadInitializationResponseContext = NULL;
+    _uploadInitializationResponseCallback = nullptr;
+    _uploadInformationStatusContext = NULL;
+    _uploadInformationStatusCallback = nullptr;
+    _fileNotAvailableContext = NULL;
+    _fileNotAvailableCallback = nullptr;
+
     toggleAbortSend = false;
 }
 
@@ -52,7 +59,7 @@ UploadDataLoaderARINC615A::~UploadDataLoaderARINC615A()
 UploadOperationResult
 UploadDataLoaderARINC615A::registerUploadInitializationResponseCallback(
     uploadInitializationResponseCallback callback,
-    std::shared_ptr<void> context)
+    void *context)
 {
     _uploadInitializationResponseCallback = callback;
     _uploadInitializationResponseContext = context;
@@ -62,7 +69,7 @@ UploadDataLoaderARINC615A::registerUploadInitializationResponseCallback(
 UploadOperationResult
 UploadDataLoaderARINC615A::registerUploadInformationStatusCallback(
     uploadInformationStatusCallback callback,
-    std::shared_ptr<void> context)
+    void *context)
 {
     _uploadInformationStatusCallback = callback;
     _uploadInformationStatusContext = context;
@@ -72,7 +79,7 @@ UploadDataLoaderARINC615A::registerUploadInformationStatusCallback(
 UploadOperationResult
 UploadDataLoaderARINC615A::registerFileNotAvailableCallback(
     fileNotAvailableCallback callback,
-    std::shared_ptr<void> context)
+    void *context)
 {
     _fileNotAvailableCallback = callback;
     _fileNotAvailableContext = context;

@@ -1157,7 +1157,7 @@ TEST_F(ARINC615AUploadDataLoaderTest, UploadDataLoaderOperatorAbort)
 
 UploadOperationResult UploadDataLoaderFileNotFound_fileNotAvailableCbk(
     uint16_t *waitTimeS,
-    std::shared_ptr<void> context)
+    void *context)
 {
     *waitTimeS = DEFAULT_WAIT_TIME;
     return UploadOperationResult::UPLOAD_OPERATION_OK;

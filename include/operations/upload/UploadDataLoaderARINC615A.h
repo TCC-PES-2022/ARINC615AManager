@@ -40,7 +40,7 @@ class LoadUploadRequestFileARINC615A;
  */
 typedef UploadOperationResult (*uploadInitializationResponseCallback)(
     std::string uploadInitializationResponseJson,
-    std::shared_ptr<void> context);
+    void *context);
 
 /**
  * @brief Callback for upload progress report. This callback is called when the
@@ -56,7 +56,7 @@ typedef UploadOperationResult (*uploadInitializationResponseCallback)(
  */
 typedef UploadOperationResult (*uploadInformationStatusCallback)(
     std::string uploadInformationStatusJson,
-    std::shared_ptr<void> context);
+    void *context);
 
 /**
  * @brief Callback for file not available. This callback is called when the
@@ -72,7 +72,7 @@ typedef UploadOperationResult (*uploadInformationStatusCallback)(
  */
 typedef UploadOperationResult (*fileNotAvailableCallback)(
     uint16_t *waitTimeS,
-    std::shared_ptr<void> context);
+    void *context);
 
 /**
  * @brief Class to handle ARINC-615A upload operation on the DataLoader side.
@@ -174,7 +174,7 @@ public:
      */
     UploadOperationResult registerUploadInitializationResponseCallback(
         uploadInitializationResponseCallback callback,
-        std::shared_ptr<void> context);
+        void *context);
 
     /**
      * Register a callback for upload information status.
@@ -187,7 +187,7 @@ public:
      */
     UploadOperationResult registerUploadInformationStatusCallback(
         uploadInformationStatusCallback callback,
-        std::shared_ptr<void> context);
+        void *context);
 
     /**
      * Register a callback for file not available.
@@ -200,7 +200,7 @@ public:
      */
     UploadOperationResult registerFileNotAvailableCallback(
         fileNotAvailableCallback callback,
-        std::shared_ptr<void> context);
+        void *context);
 
     UploadOperationResult abort(uint16_t abortSource) override;
 
@@ -260,13 +260,13 @@ private:
     std::string targetHardwareIp;
     std::vector<ArincLoad> loadList;
 
-    std::shared_ptr<void> _uploadInitializationResponseContext;
+    void *_uploadInitializationResponseContext;
     uploadInitializationResponseCallback _uploadInitializationResponseCallback;
 
-    std::shared_ptr<void> _uploadInformationStatusContext;
+    void *_uploadInformationStatusContext;
     uploadInformationStatusCallback _uploadInformationStatusCallback;
 
-    std::shared_ptr<void> _fileNotAvailableContext;
+    void *_fileNotAvailableContext;
     fileNotAvailableCallback _fileNotAvailableCallback;
 
     uint16_t tftpTargetHardwareServerPort;

@@ -37,19 +37,17 @@ typedef struct
     std::condition_variable contextCV;
 } FindARINC615AContext;
 
-FindOperationResult findStartedStopped_startedCallback(std::shared_ptr<void> context) {
+FindOperationResult findStartedStopped_startedCallback(void *context) {
     if (context != nullptr) {
-        std::shared_ptr<FindARINC615AContext> findARINC615AContext =
-                std::static_pointer_cast<FindARINC615AContext>(context);
+        FindARINC615AContext *findARINC615AContext = (FindARINC615AContext*)context;
         findARINC615AContext->findStartedCalled = true;
     }
     return FindOperationResult::FIND_OPERATION_OK;
 }
 
-FindOperationResult findStartedStopped_finishedCallback(std::shared_ptr<void> context) {
+FindOperationResult findStartedStopped_finishedCallback(void *context) {
     if (context != nullptr) {
-        std::shared_ptr<FindARINC615AContext> findARINC615AContext =
-                std::static_pointer_cast<FindARINC615AContext>(context);
+        FindARINC615AContext *findARINC615AContext = (FindARINC615AContext*) context;
         findARINC615AContext->findFinishedCalled = true;
         findARINC615AContext->contextCV.notify_one();
     }
@@ -62,7 +60,7 @@ TEST(ARINC615AFindTest, FindStartedStopped)
 //    FindARINC615AContext context;
 //    std::shared_ptr<FindARINC615AContext> findARINC615AContext =
 //            std::make_shared<FindARINC615AContext>(std::move(context));
-    std::shared_ptr<FindARINC615AContext> context = std::make_shared<FindARINC615AContext>();
+    FindARINC615AContext *context = new FindARINC615AContext();
     context->findStartedCalled = false;
     context->findFinishedCalled = false;
 
@@ -81,12 +79,12 @@ TEST(ARINC615AFindTest, FindStartedStopped)
 
     ASSERT_TRUE(context->findStartedCalled);
     ASSERT_TRUE(context->findFinishedCalled);
+    delete context;
 }
 
-FindOperationResult newDeviceInfo_newDeviceCallback(std::string deviceInfo, std::shared_ptr<void> context) {
+FindOperationResult newDeviceInfo_newDeviceCallback(std::string deviceInfo, void *context) {
     if (context != nullptr) {
-        std::shared_ptr<FindARINC615AContext> findARINC615AContext =
-                std::static_pointer_cast<FindARINC615AContext>(context);
+        FindARINC615AContext *findARINC615AContext = (FindARINC615AContext*) context;
         findARINC615AContext->deviceInfo = deviceInfo;
     }
     return FindOperationResult::FIND_OPERATION_OK;
@@ -104,7 +102,8 @@ TEST(ARINC615AFindTest, NewDeviceInfo)
 {
     createFindStub();
     FindARINC615A findObj;
-    std::shared_ptr<FindARINC615AContext> context = std::make_shared<FindARINC615AContext>();
+    // std::shared_ptr<FindARINC615AContext> context = std::make_shared<FindARINC615AContext>();
+    FindARINC615AContext *context = new FindARINC615AContext();
     context->findStartedCalled = false;
     context->findFinishedCalled = false;
 
@@ -123,4 +122,5 @@ TEST(ARINC615AFindTest, NewDeviceInfo)
     }
 
     ASSERT_STREQ(context->deviceInfo.c_str(), DEVICE_INFO);
+    delete context;
 }

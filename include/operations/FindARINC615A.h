@@ -30,7 +30,7 @@ enum class FindOperationResult {
  * @return FIND_OPERATION_ERROR otherwise.
  */
 typedef FindOperationResult (*findStarted) (
-        std::shared_ptr<void>
+        void *context
 );
 
 /**
@@ -42,7 +42,7 @@ typedef FindOperationResult (*findStarted) (
  * @return FIND_OPERATION_ERROR otherwise.
  */
 typedef FindOperationResult (*findFinished) (
-        std::shared_ptr<void>
+        void *context
 );
 
 /**
@@ -59,7 +59,7 @@ typedef FindOperationResult (*findFinished) (
  */
 typedef FindOperationResult (*findNewDevice) (
         std::string device,
-        std::shared_ptr<void>
+        void *context
 );
 
 class FindARINC615A {
@@ -77,7 +77,7 @@ public:
      * @return FIND_OPERATION_ERROR otherwise.
      */
     FindOperationResult registerFindStartedCallback(
-        findStarted callback, std::shared_ptr<void> context);
+        findStarted callback, void *context);
 
     /**
      * Register a callback for find operation finished.
@@ -89,7 +89,7 @@ public:
      * @return FIND_OPERATION_ERROR otherwise.
      */
     FindOperationResult registerFindFinishedCallback(
-        findFinished callback, std::shared_ptr<void> context);
+        findFinished callback, void *context);
 
     /**
      * Register a callback for new devices found.
@@ -101,7 +101,7 @@ public:
      * @return FIND_OPERATION_ERROR otherwise.
      */
     FindOperationResult registerFindNewDeviceCallback(
-        findNewDevice callback, std::shared_ptr<void> context);
+        findNewDevice callback, void *context);
     /**
     * Start find operation. This is a non-blocking function.
     * Devices found will be notified through the callback.
@@ -113,13 +113,13 @@ public:
 
 private:
     findStarted _findStartedCallback;
-    std::shared_ptr<void> _findStartedContext;
+    void *_findStartedContext;
 
     findFinished _findFinishedCallback;
-    std::shared_ptr<void> _findFinishedContext;
+    void *_findFinishedContext;
 
     findNewDevice _findNewDeviceCallback;
-    std::shared_ptr<void> _findNewDeviceContext;
+    void *_findNewDeviceContext;
 };
 
 

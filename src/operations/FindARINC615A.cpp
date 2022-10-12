@@ -27,21 +27,21 @@ FindARINC615A::~FindARINC615A() {
 }
 
 FindOperationResult FindARINC615A::registerFindStartedCallback(
-        findStarted callback, std::shared_ptr<void> context) {
+        findStarted callback, void *context) {
     _findStartedCallback = callback;
     _findStartedContext = context;
     return FindOperationResult::FIND_OPERATION_OK;
 }
 
 FindOperationResult FindARINC615A::registerFindFinishedCallback(
-        findFinished callback, std::shared_ptr<void> context) {
+        findFinished callback, void *context) {
     _findFinishedCallback = callback;
     _findFinishedContext = context;
     return FindOperationResult::FIND_OPERATION_OK;
 }
 
 FindOperationResult FindARINC615A::registerFindNewDeviceCallback(
-        findNewDevice callback, std::shared_ptr<void> context) {
+        findNewDevice callback, void *context) {
     _findNewDeviceCallback = callback;
     _findNewDeviceContext = context;
     return FindOperationResult::FIND_OPERATION_OK;
