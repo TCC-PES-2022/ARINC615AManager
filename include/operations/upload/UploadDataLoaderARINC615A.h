@@ -64,6 +64,7 @@ typedef UploadOperationResult (*uploadInformationStatusCallback)(
  *
  * //TODO: document the JSON format.
  *
+ * @param[in] fileName the file name.
  * @param[out] waitTimeS time to wait in seconds before next call.
  * @param[in] context the user context.
  *
@@ -71,6 +72,7 @@ typedef UploadOperationResult (*uploadInformationStatusCallback)(
  * @return UPLOAD_OPERATION_ERROR otherwise.
  */
 typedef UploadOperationResult (*fileNotAvailableCallback)(
+    std::string fileName,
     uint16_t *waitTimeS,
     void *context);
 

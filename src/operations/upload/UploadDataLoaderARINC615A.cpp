@@ -506,7 +506,9 @@ TftpServerOperationResult UploadDataLoaderARINC615A::targetHardwareOpenFileReque
                 uint16_t waitTime = DEFAULT_WAIT_TIME;
                 if (thiz->_fileNotAvailableCallback != nullptr)
                 {
-                    thiz->_fileNotAvailableCallback(&waitTime,
+                    std::string fileNameStr(filename);
+                    thiz->_fileNotAvailableCallback(fileNameStr,
+                                                    &waitTime,
                                                     thiz->_fileNotAvailableContext);
                 }
 
