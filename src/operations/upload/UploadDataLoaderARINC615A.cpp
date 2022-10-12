@@ -307,7 +307,7 @@ UploadOperationResult UploadDataLoaderARINC615A::upload()
         return UploadOperationResult::UPLOAD_OPERATION_ERROR;
     }
 
-    InitializationFileARINC615A initializationFile;
+    InitializationFileARINC615A initializationFile(initializationFileName);
     initializationFile.deserialize(fileBuffer);
 
     uint16_t operationAcceptanceStatusCode;
@@ -626,7 +626,9 @@ UploadOperationResult UploadDataLoaderARINC615A::processLoadUploadStatusFile(
     std::shared_ptr<std::vector<uint8_t>> data =
         std::make_shared<std::vector<uint8_t>>(buffer,
                                                buffer + MAX_FILE_BUFFER_SIZE);
-    LoadUploadStatusFileARINC615A loadUploadStatusFile;
+    std::string baseFileName = targetHardwareId + std::string("_") + targetHardwarePosition;
+    std::string statusFileName = baseFileName + std::string(UPLOAD_LOAD_UPLOAD_STATUS_FILE_EXTENSION);
+    LoadUploadStatusFileARINC615A loadUploadStatusFile(statusFileName);
     loadUploadStatusFile.deserialize(data);
 
     if (_uploadInformationStatusCallback != nullptr)
