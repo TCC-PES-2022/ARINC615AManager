@@ -6,8 +6,8 @@ OBJ_PATH := obj
 SRC_PATH := src
 INCLUDE_PATH := include
 
-TARGET_NAME := libarinc615a.a
-TARGET := $(OUT_PATH)/$(TARGET_NAME)
+TARGET_NAME := libarinc615a.a libarinc615a.so
+TARGET := $(addprefix $(OUT_PATH)/, $(TARGET_NAME))
 
 INCDIRS := $(addprefix -I,$(shell find $(INCLUDE_PATH) -type d -print))
 INCDIRS += $(addprefix -I,$(DEP_PATH)/include)
@@ -31,9 +31,9 @@ $(DEPS): $@
 	$(MAKE) install DESTDIR=$(DEP_PATH)
 
 # LIB_DEPS_COMPLETE := $(addprefix $(DEP_PATH)/lib/,$(LIB_DEPS))
-$(TARGET): $(OBJ)
+$(OUT_PATH)/libarinc615a.a: $(OBJ)
 	@echo "Linking $@"
-	$(AR) $(ARFLAGS) $(TARGET) $(OBJ)
+	$(AR) $(ARFLAGS) $@ $(OBJ)
 	# $(AR) $(ARFLAGS) libtmp.a $(OBJ)
 	# echo "create $@" > lib.mri
 	# echo "addlib libtmp.a" >> lib.mri
@@ -41,9 +41,13 @@ $(TARGET): $(OBJ)
 	# echo "save" >> lib.mri
 	# echo "end" >> lib.mri
 	# $(AR) -M < lib.mri
-	# rm libtmp.a
+	# # rm libtmp.a
 	# rm lib.mri
 	# ranlib $@
+
+$(OUT_PATH)/libarinc615a.so: $(OBJ)
+	@echo "Linking $@"
+	$(CC) -o $@ $(LINKFLAGS) $(OBJ) $(CFLAGS)
 
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
 	@echo "Building $<"
@@ -59,8 +63,6 @@ deps: $(DEPS)
 
 .PHONY: all
 all: makedir $(TARGET)
-	strip --strip-unneeded $(TARGET)
-	ranlib $(TARGET)
 
 .PHONY: test
 test: makedir $(TARGET)

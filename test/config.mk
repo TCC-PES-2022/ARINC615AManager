@@ -2,6 +2,7 @@
 VERSION = 0.1
 
 GTEST_ROOT	:=./googletest
+DESTDIR 	?= /tmp
 DEP_PATH 	?= $(DESTDIR)
 
 CXX				?=

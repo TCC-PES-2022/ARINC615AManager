@@ -14,6 +14,7 @@ CXX 		?=
 CXXFLAGS 	:= -Wall -Werror -std=c++11 -pthread
 DBGFLAGS 	:= -g -ggdb
 TESTFLAGS 	:= -fprofile-arcs -ftest-coverage --coverage
+LINKFLAGS 	:= -shared
 
 COBJFLAGS 	:= $(CXXFLAGS) -c -fPIC
 test: COBJFLAGS 	+= $(TESTFLAGS)
