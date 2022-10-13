@@ -5,7 +5,7 @@ VERSION = 0.1
 DESTDIR 	?= /tmp
 DEP_PATH 	?= $(DESTDIR)
 
-DEPS 		:= TransferManager cJSON
+DEPS 		:= TransferManager
 # LIB_DEPS	:= libtransfer.a libcjson.a
 
 AR 			?= ar

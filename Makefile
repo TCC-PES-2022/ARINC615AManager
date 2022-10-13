@@ -30,13 +30,6 @@ $(DEPS): $@
 	$(MAKE) $(DEP_RULE) -j$(shell echo $$((`nproc`))) && \
 	$(MAKE) install DESTDIR=$(DEP_PATH)
 
-cJSON:
-	@echo "\n\n *** Building $@ *** \n\n"
-	cd modules/$@ && mkdir -p build && cd build && \
-	cmake .. -DBUILD_SHARED_LIBS=Off -DCMAKE_INSTALL_PREFIX= && \
-	make -j$(shell echo $$((`nproc`))) && make install DESTDIR=$(DEP_PATH)
-	strip --strip-unneeded $(DEP_PATH)/lib/libcjson.a
-
 # LIB_DEPS_COMPLETE := $(addprefix $(DEP_PATH)/lib/,$(LIB_DEPS))
 $(TARGET): $(OBJ)
 	@echo "Linking $@"
