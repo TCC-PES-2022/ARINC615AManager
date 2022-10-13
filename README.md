@@ -45,4 +45,4 @@ To test, first build gtest:
 
 To test and generate test coverage, run:
 
-    make report
+    cd test && make report
