@@ -13,11 +13,11 @@ To clone this repository, run:
 Before building your project, you may need to install some dependencies. To do so, run:
 
     sudo apt update
-    sudo apt install -y build-essential libcjson-dev
+    sudo apt install -y build-essential=12.9ubuntu3 libcjson-dev=1.7.15-1
     
 For tests, you'll also need
     
-    sudo apt install -y libgtest-dev cmake lcov
+    sudo apt install -y libgtest-dev=1.11.0-3 cmake-data=3.22.1-1ubuntu1 cmake=3.22.1-1ubuntu1 lcov=1.15-1
 
 Export the instalation path to the environment:
 
