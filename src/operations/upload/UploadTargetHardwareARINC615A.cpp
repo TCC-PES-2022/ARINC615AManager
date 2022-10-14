@@ -38,6 +38,7 @@ UploadTargetHardwareARINC615A::UploadTargetHardwareARINC615A(
 
     loadListRatio = 0;
     uploadAborted = false;
+    uploadWaitTime = 0;
 }
 
 UploadTargetHardwareARINC615A::~UploadTargetHardwareARINC615A()
