@@ -434,7 +434,9 @@ TftpServerOperationResult UploadDataLoaderARINC615A::targetHardwareSectionFinish
         sectionHandler->getSectionId(&id);
         {
             std::lock_guard<std::mutex> lock(thiz->targetClientsMutex);
-            thiz->targetClients[id]->setSectionFinished();
+	    if (thiz->targetClients.find(id) != thiz->targetClients.end()) {
+                thiz->targetClients[id]->setSectionFinished();
+	    }
         }
         thiz->clientProcessorCV.notify_one();
     }
@@ -528,10 +530,12 @@ TftpServerOperationResult UploadDataLoaderARINC615A::targetHardwareOpenFileReque
             sectionHandler->getSectionId(&id);
             {
                 std::lock_guard<std::mutex> lock(thiz->targetClientsMutex);
-                if (thiz->targetClients[id]->getClientFileBufferReference(fp) ==
-                    UploadOperationResult::UPLOAD_OPERATION_OK)
-                {
-                    thiz->targetClients[id]->setFileName(std::string(filename));
+	        if (thiz->targetClients.find(id) != thiz->targetClients.end()) {
+                    if (thiz->targetClients[id]->getClientFileBufferReference(fp) ==
+                        UploadOperationResult::UPLOAD_OPERATION_OK)
+                    {
+		        thiz->targetClients[id]->setFileName(std::string(filename));
+		    }
                 }
             }
         }
