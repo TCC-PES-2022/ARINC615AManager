@@ -655,7 +655,7 @@ UploadOperationResult UploadTargetHardwareARINC615A::uploadThread()
     bool receiveError = false;
 
     uint32_t numOfSuccessfullUploads = 0;
-    uint32_t numOfFilesToUpload = statusHeaderFiles->size();
+    uint32_t numOfFilesToUpload = statusHeaderFiles->size()-1;
     loadListRatio = 0;
     std::vector<LoadUploadStatusHeaderFileARINC615A>::iterator it;
     for (it = statusHeaderFiles->begin();
@@ -737,8 +737,11 @@ UploadOperationResult UploadTargetHardwareARINC615A::uploadThread()
                 }
             }
             (*it).setLoadStatus(STATUS_UPLOAD_COMPLETED);
-            (*it).setLoadRatio(100);
-            numOfSuccessfullUploads++;
+	    (*it).setLoadRatio(100);
+	    if (headerFileName.find(".xml") == std::string::npos)
+	    {
+	        numOfSuccessfullUploads++;
+	    }
             loadListRatio = (numOfSuccessfullUploads * 100) / numOfFilesToUpload;
         }
     }
