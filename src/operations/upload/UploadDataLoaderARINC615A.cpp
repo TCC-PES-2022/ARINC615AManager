@@ -447,37 +447,43 @@ UploadOperationResult UploadDataLoaderARINC615A::abortTargetRequest(
     uint16_t abortSource, ITFTPSection *sectionHandler, char *filename,
     char *mode)
 {
-    if (abortSource != UPLOAD_ABORT_SOURCE_NONE && toggleAbortSend)
+    UploadOperationResult result = UploadOperationResult::UPLOAD_OPERATION_ERROR;
+    if (abortSource != UPLOAD_ABORT_SOURCE_NONE)
     {
-
-        /*
-         * According the the ARINC 615A specification, the abort message
-         * should be sent only once on status file write request.
-         * But it's also said that the TargetHardware will send a
-         * confirmation of the abort, so we need to check that.
-         * It's not clear how to handle this, so for now the solution will
-         * be to send abort messages intermittently.
-         */
-        toggleAbortSend = !toggleAbortSend;
-
+        result = UploadOperationResult::UPLOAD_OPERATION_OK;
         std::string lusExtension =
             std::string(UPLOAD_LOAD_UPLOAD_STATUS_FILE_EXTENSION);
 
         if (std::strcmp(mode, "w") == 0 &&
             std::strstr(filename, lusExtension.c_str()) != nullptr)
         {
+            /*
+             * According the the ARINC 615A specification, the abort message
+             * should be sent only once on status file write request.
+             * But it's also said that the TargetHardware will send a
+             * confirmation of the abort, so we need to check that.
+             * It's not clear how to handle this, so for now the solution will
+             * be to send abort messages intermittently.
+             */
+            toggleAbortSend = !toggleAbortSend;
 
-            std::stringstream errorMessageStream;
-            errorMessageStream << ARINC_ABORT_MSG_PREFIX;
-            errorMessageStream << ARINC_ERROR_MSG_DELIMITER;
-            errorMessageStream << std::hex << abortSource;
-            std::string errorMessage = errorMessageStream.str();
-            sectionHandler->setErrorMessage(errorMessage);
+            if (toggleAbortSend)
+            {
+                std::stringstream errorMessageStream;
+                errorMessageStream << ARINC_ABORT_MSG_PREFIX;
+                errorMessageStream << ARINC_ERROR_MSG_DELIMITER;
+                errorMessageStream << std::hex << abortSource;
+                std::string errorMessage = errorMessageStream.str();
+                sectionHandler->setErrorMessage(errorMessage);
+            }
+            else
+            {
+                result = UploadOperationResult::UPLOAD_OPERATION_ERROR;
+            }
         }
-        return UploadOperationResult::UPLOAD_OPERATION_OK;
     }
 
-    return UploadOperationResult::UPLOAD_OPERATION_ERROR;
+    return result;
 }
 
 TftpServerOperationResult UploadDataLoaderARINC615A::targetHardwareOpenFileRequest(
