@@ -12,6 +12,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <unordered_map>
 
 // TODO: Create an interface for generic FSM
 enum class UploadTargetHardwareARINC615AState
@@ -183,6 +184,16 @@ private:
     static TftpClientOperationResult tftpUploadErrorCbk(short error_code,
                                                         std::string &error_message,
                                                         void *context);
+    typedef struct {
+        std::vector<LoadUploadStatusHeaderFileARINC615A>::iterator *it;
+        uint32_t totalDataSize;
+        uint32_t receivedDataSize;
+        std::unordered_map<std::string, uint32_t> totalFileSize;
+        std::unordered_map<std::string, uint32_t> receivedFileSizes;
+        UploadTargetHardwareARINC615A *thiz;
+    } FetchDataReceivedContext;
+    static TftpClientOperationResult tftpFetchDataReceivedCbk(int dataSize,
+                                                              void *context);
     UploadOperationResult uploadThread();
 
 #ifdef PARALLEL_UPLOAD

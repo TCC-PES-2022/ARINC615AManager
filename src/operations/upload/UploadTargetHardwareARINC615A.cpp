@@ -644,6 +644,44 @@ UploadOperationResult UploadTargetHardwareARINC615A::uploadThread()
     return UploadOperationResult::UPLOAD_OPERATION_OK;
 }
 #else
+
+TftpClientOperationResult UploadTargetHardwareARINC615A::tftpFetchDataReceivedCbk(
+    int dataSize, void *context)
+{
+    if (context != NULL)
+    {
+        FetchDataReceivedContext *ctx = (FetchDataReceivedContext*)context;
+
+        std::string headerFileName;
+        (*ctx->it)->getHeaderFileName(headerFileName);
+
+        if (ctx->receivedFileSizes.find(headerFileName) == ctx->receivedFileSizes.end() || 
+            ctx->totalFileSize.find(headerFileName) == ctx->totalFileSize.end())
+        {
+            return TftpClientOperationResult::TFTP_CLIENT_ERROR;
+        }
+        
+        ctx->receivedDataSize += dataSize;
+        ctx->receivedFileSizes[headerFileName] += dataSize;
+
+        uint32_t ratio = (ctx->receivedFileSizes[headerFileName]*100)/ctx->totalFileSize[headerFileName];
+        if (ratio == 100)
+        {
+            ratio = 99; // Avoid 100% to be displayed before the file is fully verified.
+        }
+        (*ctx->it)->setLoadRatio(ratio);
+
+        uint32_t totalRatio = 0;
+        totalRatio = (ctx->receivedDataSize*100)/ctx->totalDataSize;
+        if (totalRatio == 100)
+        {
+            totalRatio = 99; // Avoid 100% to be displayed before the file is fully verified.
+        }
+        ctx->thiz->loadListRatio = totalRatio;
+    }
+    return TftpClientOperationResult::TFTP_CLIENT_OK;
+}
+
 UploadOperationResult UploadTargetHardwareARINC615A::uploadThread()
 {
     TFTPClient uploadClient;
@@ -654,10 +692,45 @@ UploadOperationResult UploadTargetHardwareARINC615A::uploadThread()
 
     bool receiveError = false;
 
-    uint32_t numOfSuccessfullUploads = 0;
-    uint32_t numOfFilesToUpload = statusHeaderFiles->size()-1;
+    // uint32_t numOfSuccessfullUploads = 0;
+    // uint32_t numOfFilesToUpload = statusHeaderFiles->size()-1;
     loadListRatio = 0;
     std::vector<LoadUploadStatusHeaderFileARINC615A>::iterator it;
+
+    FetchDataReceivedContext context;
+    context.it = &it;
+    context.totalDataSize = 0;
+    context.receivedDataSize = 0;
+    context.thiz = this;
+
+    //Get total size of all files to upload
+    for (it = statusHeaderFiles->begin();
+         (it != statusHeaderFiles->end()) && runUploadThread;
+         it++)
+    {
+        std::string headerFileName;
+        (*it).getHeaderFileName(headerFileName);
+
+        std::string cleanHeaderFileName = headerFileName;
+        size_t fileNamePosition = headerFileName.find_last_of("/\\");
+        if (fileNamePosition != std::string::npos)
+        {
+            cleanHeaderFileName = headerFileName.substr(fileNamePosition + 1);
+        }
+
+        std::string fileSizeStr = cleanHeaderFileName.substr(cleanHeaderFileName.find_first_of("_") + 1);
+        fileSizeStr = fileSizeStr.substr(0, fileSizeStr.find_first_of("."));
+        int fileSize = 0;
+        try {
+            fileSize = std::stoi(fileSizeStr, nullptr, 10);
+        } catch (...) {
+            continue;
+        }
+        context.totalDataSize += fileSize;
+        context.totalFileSize[headerFileName] = fileSize;
+        context.receivedFileSizes[headerFileName] = 0;
+    }
+
     for (it = statusHeaderFiles->begin();
          (it != statusHeaderFiles->end()) && runUploadThread;
          it = (uploadWaitTime > 0) ? it : it + 1)
@@ -700,7 +773,9 @@ UploadOperationResult UploadTargetHardwareARINC615A::uploadThread()
         {
             do
             {
+                uploadClient.registerTftpFetchDataReceivedCallback(UploadTargetHardwareARINC615A::tftpFetchDataReceivedCbk, &context);
                 result = uploadClient.fetchFile(headerFileName.c_str(), fp);
+                uploadClient.registerTftpFetchDataReceivedCallback(NULL, NULL);
             } while (result == TftpClientOperationResult::TFTP_CLIENT_ERROR &&
                      runUploadThread && fetchRetry-- > 0 && uploadWaitTime == 0);
             fclose(fp);
@@ -720,7 +795,6 @@ UploadOperationResult UploadTargetHardwareARINC615A::uploadThread()
         else
         {
             (*it).setLoadStatus(STATUS_UPLOAD_IN_PROGRESS_WITH_DESCRIPTION);
-            (*it).setLoadRatio(50);
             (*it).setLoadStatusDescription("Checking received file...");
 
             if (_checkFilesCallback != nullptr)
@@ -737,12 +811,8 @@ UploadOperationResult UploadTargetHardwareARINC615A::uploadThread()
                 }
             }
             (*it).setLoadStatus(STATUS_UPLOAD_COMPLETED);
-	    (*it).setLoadRatio(100);
-	    if (headerFileName.find(".xml") == std::string::npos)
-	    {
-	        numOfSuccessfullUploads++;
-	    }
-            loadListRatio = (numOfSuccessfullUploads * 100) / numOfFilesToUpload;
+	        (*it).setLoadRatio(100);
+            loadListRatio = (context.receivedDataSize*100)/context.totalDataSize;
         }
     }
 
