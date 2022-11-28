@@ -826,6 +826,16 @@ UploadOperationResult UploadTargetHardwareARINC615A::uploadThread()
 
     if (receiveError)
     {
+        /*
+         * TODO: Use a condition variable here to wait for a status message
+         * before aborting. 
+         *
+         * This is necessary because uploadThread will detect
+         * a failure before statusThread, but the abort source may be the operator,
+         * so we need to report the right source to the DataLoader.
+         */
+        std::this_thread::sleep_for(std::chrono::milliseconds(
+                                static_cast<uint16_t>(2*STATUS_UPLOAD_PERIOD)));
         abort(UPLOAD_ABORT_SOURCE_TARGETHARDWARE);
         return UploadOperationResult::UPLOAD_OPERATION_ERROR;
     }
