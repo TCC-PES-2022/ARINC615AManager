@@ -8,7 +8,7 @@
 #include "UploadTargetHardwareARINC615A.h"
 #include "InitializationFileARINC615A.h"
 
-#define STATUS_UPLOAD_PERIOD 1000 // ms
+#define STATUS_UPLOAD_PERIOD 100 // ms
 
 UploadTargetHardwareARINC615A::UploadTargetHardwareARINC615A(
     std::string dataLoaderIp, int dataLoaderPort)
