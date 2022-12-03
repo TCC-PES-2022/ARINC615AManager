@@ -1,6 +1,6 @@
-    # ARINC615AManager
+# ARINC615AManager
 
-This is library for transferring data between two endpoints using ARINC 615A protocol.
+This is library for transferring data between two endpoints using ARINC 615A protocol. Check the [Documentation](https://tcc-pes-2022.github.io/ARINC615AManager/)
 
 This repository is part of project [ARIEL](https://github.com/TCC-PES-2022).
 
